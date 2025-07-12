@@ -26,12 +26,30 @@ const formSchema = z.object({
   content: z.string().min(1, "内容は必須です"),
 })
 
+const templates = {
+  business: `
+<h1>【なぜこの本を選んだのか】</h1>
+<h1>【この本から得たいこと】</h1>
+<h1>【印象に残った内容】</h1>
+<h1>【これからどう活かすか】</h1>
+<h1>【読後の気づき・変化】</h1>
+`,
+  novel: `
+<h1>【あらすじ】</h1>
+<h1>【印象に残った登場人物】</h1>
+<h1>【感想】</h1>
+<h1>【心に残った一文】</h1>
+`,
+}
+
 type BookForm = z.infer<typeof formSchema>
 
 export default function Add({ onBookAdded }: { onBookAdded: () => void }) {
   const [open, setOpen] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
+  const [selectedTemplate, setSelectedTemplate] = useState<keyof typeof templates>("business")
+
 
   const form = useForm<BookForm>({
     resolver: zodResolver(formSchema),
@@ -216,18 +234,48 @@ export default function Add({ onBookAdded }: { onBookAdded: () => void }) {
               control={form.control}
               name="content"
               render={({ field }) => (
+                
                 <FormItem>
                   <FormLabel>内容</FormLabel>
+
+                  {/* テンプレ選択・挿入UI */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-white">テンプレート:</label>
+                      <select
+                        value={selectedTemplate}
+                        onChange={(e) => setSelectedTemplate(e.target.value as keyof typeof templates)}
+                        className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-2 py-1"
+                      >
+                        <option value="business">ビジネス本</option>
+                        <option value="novel">小説</option>
+                      </select>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        form.setValue("content", templates[selectedTemplate])
+                      }}
+                    >
+                      テンプレートを挿入
+                    </Button>
+                  </div>
+
                   <FormControl>
                     <RichTextEditor
                       content={field.value}
                       onChange={field.onChange}
                     />
                   </FormControl>
+
                   {form.formState.errors.content && (
-                    <p className="text-red-500 text-sm">{form.formState.errors.content.message}</p>
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.content.message}
+                    </p>
                   )}
                 </FormItem>
+
               )}
             />
 
