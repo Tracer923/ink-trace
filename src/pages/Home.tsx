@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import BookCard from "@/components/ui/BookCard"
 import Header from "@/components/ui/Header"
 import Add from "@/components/ui/Add"
+import Edit from "@/components/ui/Edit"
 import StarRating from "@/components/ui/StarRating"
 import Section from "@/components/ui/Section"
 import ReadOnlyEditor from "@/components/ui/ReadOnlyEditor"
@@ -27,11 +28,15 @@ type Book = {
 }
 
 export default function Home({ user }: { user?: any }) {
-  console.log("ログインユーザー:", user)
   const [books, setBooks] = useState<Book[]>([])
   const [selectedBook, setSelectedBook] = useState<Book | null>(null)
+  const [editingBook, setEditingBook] = useState<Book | null>(null)
+
 
   const [userId, setUserId] = useState<string | null>(null)
+
+  const [editOpen, setEditOpen] = useState(false)
+
 
   const fetchBooks = async () => {
     const { data, error } = await supabase
@@ -106,7 +111,26 @@ export default function Home({ user }: { user?: any }) {
           <DialogOverlay className="fixed inset-0 z-[9998] bg-black/70 backdrop-blur-sm transition-opacity" />
           <DialogContent className="z-[9999] w-full max-w-4xl max-h-[90vh] overflow-y-auto space-y-6 bg-zinc-900 text-white">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-white">{selectedBook?.title}</DialogTitle>
+              <div className="flex items-center gap-3">
+                <DialogTitle className="text-2xl font-bold text-white">
+                  {selectedBook?.title}
+                </DialogTitle>
+                {selectedBook?.user_id === userId && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEditingBook(selectedBook)
+                      setSelectedBook(null)
+                      setTimeout(() => {
+                        setEditOpen(true)
+                      }, 100)
+                    }}
+                  >
+                    編集
+                  </Button>
+                )}
+              </div>
             </DialogHeader>
 
             <Section title="著者">
@@ -147,6 +171,21 @@ export default function Home({ user }: { user?: any }) {
 
           </DialogContent>
         </Dialog>
+        {editingBook && (
+          <Edit
+            open={editOpen}
+            setOpen={setEditOpen}
+            book={{
+              ...editingBook,
+              read_date: new Date(editingBook.read_date),
+            }}
+            onBookUpdated={() => {
+              fetchBooks()
+              setEditOpen(false)
+              setSelectedBook(null)
+            }}
+          />
+        )}
       </div>
     </>
   )

@@ -9,6 +9,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 
 import TagSelector from "./Tag"
 import StarSelector from "./StarSelector"
+import RichTextEditor from "@/components/ui/RichTextEditor"
+import { BookFormSchema, BookFormType } from "@/lib/formSchemas"
+
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogOverlay } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -16,15 +19,6 @@ import { Input } from "@/components/ui/input"
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import RichTextEditor from "@/components/ui/RichTextEditor"
-
-const formSchema = z.object({
-  title: z.string().min(1, "タイトルは必須です"),
-  author: z.string().optional(),
-  read_date: z.date(),
-  rating: z.number().min(1, "評価を選んでください"), // 0は未評価扱い
-  content: z.string().min(1, "内容は必須です"),
-})
 
 const templates = {
   business: `
@@ -42,7 +36,7 @@ const templates = {
 `,
 }
 
-type BookForm = z.infer<typeof formSchema>
+type BookForm = BookFormType
 
 export default function Add({ onBookAdded }: { onBookAdded: () => void }) {
   const [open, setOpen] = useState(false)
@@ -52,7 +46,7 @@ export default function Add({ onBookAdded }: { onBookAdded: () => void }) {
 
 
   const form = useForm<BookForm>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(BookFormSchema),
     defaultValues: {
       title: "",
       author: "",
