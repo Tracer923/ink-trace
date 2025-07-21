@@ -16,10 +16,18 @@ import RichTextEditor from "./RichTextEditor"
 import TagSelector from "./Tag"
 import { format } from "date-fns"
 
-export default function BookForm({ form, onSubmit, isEditing = false }: {
+export default function BookForm({
+  form,
+  onSubmit,
+  isEditing = false,
+  selectedTagIds,
+  setSelectedTagIds,
+}: {
   form: any
   onSubmit: (data: any) => void
   isEditing?: boolean
+  selectedTagIds: string[]
+  setSelectedTagIds: (ids: string[]) => void
 }) {
   return (
     <Form {...form}>
@@ -83,7 +91,7 @@ export default function BookForm({ form, onSubmit, isEditing = false }: {
                     {field.value ? format(field.value, "yyyy-MM-dd") : "日付を選択"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0 z-[99999]">
                   <Calendar
                     mode="single"
                     selected={field.value}
@@ -95,6 +103,16 @@ export default function BookForm({ form, onSubmit, isEditing = false }: {
             </FormItem>
           )}
         />
+
+        {isEditing && (
+          <FormItem>
+            <FormLabel>タグ</FormLabel>
+            <TagSelector
+              selectedTagIds={selectedTagIds}
+              setSelectedTagIds={setSelectedTagIds}
+            />
+          </FormItem>
+        )}
 
         <FormField
           control={form.control}

@@ -21,7 +21,7 @@ type Book = {
   rating: number
   read_date: string
   content: string
-  tags: string[]
+  tags: { id: string; name: string }[]
   created_at: string
   updated_at: string
   user_id?: string
@@ -57,7 +57,9 @@ export default function Home({ user }: { user?: any }) {
     } else {
       const booksWithTags = data.map((book: any) => ({
         ...book,
-        tags: book.book_tags.map((bt: any) => bt.tag?.name).filter(Boolean),
+        tags: book.book_tags
+          .map((bt: any) => bt.tag)
+          .filter((tag: any) => tag?.id && tag?.name)
       }))
       setBooks(booksWithTags)
     }
@@ -150,7 +152,7 @@ export default function Home({ user }: { user?: any }) {
                 {selectedBook?.tags?.length ? (
                   selectedBook.tags.map((tag, i) => (
                     <Badge key={i} variant="outline" className="text-white border-white">
-                      {tag}
+                      {tag.name}
                     </Badge>
                   ))
                 ) : (

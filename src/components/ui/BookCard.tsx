@@ -10,7 +10,7 @@ type Book = {
     author: string
     rating: number
     read_date: string
-    tags: string[]
+    tags: { id: string; name: string }[]
 }
 
 export default function BookCard({
@@ -40,7 +40,7 @@ export default function BookCard({
                     タグ：
                     {book.tags?.map((tag, i) => (
                     <Badge key={i} variant="outline" className="ml-1">
-                        {tag}
+                        {tag.name}
                     </Badge>
                     ))}
                 </div>
